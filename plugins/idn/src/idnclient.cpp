@@ -33,6 +33,7 @@
 //              Daniel Schröder    (schroed1@cs.uni-bonn.de)
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 #include "idncontroller.h"
 #include "idnclient.h"
 
@@ -224,7 +225,6 @@ void IdnClient::sendDmx(const QByteArray &data){
   }
 
   if(m_mode == 5 || m_mode == 7){
-    quint64 td = QDateTime::currentMSecsSinceEpoch() - lastsend;
     if((QDateTime::currentMSecsSinceEpoch() - lastsend) > (int)(140+(44*(m_rangeEnd)))/1000){
         dmxPacket = optimizedMode(data);
       qint64 sent = m_udpSocket->writeDatagram(dmxPacket, m_address, m_port);
@@ -241,7 +241,6 @@ void IdnClient::sendDmx(const QByteArray &data){
       }
     }
   }else{
-    quint64 td = QDateTime::currentMSecsSinceEpoch() - lastsend;
     if((QDateTime::currentMSecsSinceEpoch() - lastsend) > (int)(140+(44*(m_rangeEnd-m_rangeBegin)))/1000){
       dmxPacket = rangeMode(data);
       qint64 sent = m_udpSocket->writeDatagram(dmxPacket, m_address, m_port);

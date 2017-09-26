@@ -33,73 +33,59 @@
 //              Daniel Schröder    (schroed1@cs.uni-bonn.de)
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#ifndef IDNCLIENT_H
-#define IDNCLIENT_H
 
-#include <QObject>
-#include <QtNetwork>
-#include <QScopedPointer>
-#include <QTimer>
-#include <QMutex> 
+#ifndef IDNCONFIGURATION_H
+#define IDNCONFIGURATION_H
 
-#include "idnoptimizer.h"
+#include <QUdpSocket>
+
+#include "ui_idnconfiguration.h"
 #include "idnpacketizer.h"
 
-#define IDN_CONFIG_INTERVAL 180
-#define IDN_TIMEOUT 250
+class IdnPlugin;
 
-class IdnClient : public QObject
+class IdnConfiguration : public QDialog, public Ui_IdnConfiguration
 {
     Q_OBJECT
 
 public:
-    IdnClient(QHostAddress const &clientAddress, QSharedPointer<QUdpSocket> const& udpSocket,
-              int const& port, int const& rangeBegin, int const& rangeEnd, int const& mode,
-              int const& channelID, QHash<QPair<QHostAddress, int>, quint32> *sequenceNumbers);
-    ~IdnClient();
-    void sendDmx(const QByteArray &data);
-    quint64 getPacketSentNumber();
-  private:
-    QHostAddress m_ifaceAddr;
-    QHostAddress m_address;
-    QSharedPointer<QUdpSocket> m_udpSocket;
-    quint16 m_port; 
-    quint16 m_rangeBegin;
-    quint16 m_rangeEnd;
-    quint8 m_mode;
-    quint8 m_channelID;
+    IdnConfiguration(IdnPlugin *plugin, QWidget *parent = 0);
+    virtual ~IdnConfiguration();
 
-    QScopedPointer<IdnPacketizer> m_packetizer;
-    QScopedPointer<IdnOptimizer> m_optimizer;
+public slots:
+    int exec();
+    void addReceiverSlot();
 
-    //////////////////////
-    ///For packet processing
-    //////////////////////
-    /** true = packet with config header - false = packet without config header */
-    bool config;
-    int blackCounter;
+private slots:
+    void on_m_buttonBox_accepted();
 
-    /** if data does not change the old data will be send */
-    QByteArray oldData;
-    /** old range list */
-    QList<QPair<int, int> >  oldranges;
-    /** Timestamp to check wheater a config packet is neccessary */
-    qint64 timestamp;
-    /** Timestamp of the last submitted packet */
-    qint64 lastsend;
-    /** Sequence Number */
-    quint32 m_seqnum;
-	quint32 m_packetSent;
-    QHash<QPair<QHostAddress, int>, quint32> *m_sequenceNumbers;
+    void on_m_buttonBox_rejected();
 
-    QMutex m_dataMutex;
+    void on_m_scanButton_clicked();
 
-    QTimer *closeTimer;
+    void waitforScanReply();
 
-    QByteArray optimizedMode(const QByteArray &data);
-    QByteArray rangeMode(const QByteArray &data);
-  private slots:
-    void sendClosePacket();
+    void on_m_clientTree_customContextMenuRequested(const QPoint &pos);
+
+    void deleteSlot();
+
+    void on_m_addClientButton_clicked();
+
+private:
+    //QHash<QHostAddress, QUdpSocket> m_scanSockets;
+    IdnPacketizer *m_packetizer;
+    void fillTree();
+    short validateInput(QString ipAddress, int port, unsigned short channel, unsigned short rangeBegin, unsigned short rangeEnd);
+    void uiSettings();
+    void settings();
+    bool validConfiguration;
+
+    void sendScan(QUdpSocket *scanSocket, QHostAddress outputIP);
+
+private:
+	IdnPlugin* m_plugin;
+private:
+    Ui::IdnConfiguration *ui;
 };
 
-#endif
+#endif // IDNCONFIGURATION_H

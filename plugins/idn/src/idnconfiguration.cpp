@@ -33,6 +33,7 @@
 //              Daniel Schröder    (schroed1@cs.uni-bonn.de)
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QMessageBox>

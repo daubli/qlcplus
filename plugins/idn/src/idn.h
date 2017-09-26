@@ -33,6 +33,7 @@
 //              Daniel Schröder    (schroed1@cs.uni-bonn.de)
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 #ifndef IDN_H
 #define IDN_H
 
