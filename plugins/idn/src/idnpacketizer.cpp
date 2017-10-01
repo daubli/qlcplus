@@ -50,7 +50,6 @@
  * Build common header in Constructor
  *********************************************************************/
 IdnPacketizer::IdnPacketizer(){
-    scm = IDNVAL_DL_VOID;
 }
 
 IdnPacketizer::~IdnPacketizer(){}
@@ -99,10 +98,7 @@ IdnPacketizer::~IdnPacketizer(){}
         addServiceModeConfigChunk(&packet, ranges[i].first+1, ranges[i].second-ranges[i].first+1);
       }
     }
-    if(config){
-        scm = (scm + 0x10) % 0x40;
-    }
-    buildDimmerLevelHeader(&packet, scm);
+    buildDimmerLevelHeader(&packet, 0x00);
 
     addDmxData(&packet, (unsigned char*)(values.data()), values.length());
     finishPacket(&packet); //add size to packet

@@ -104,7 +104,6 @@ public:
     bool validateReply(QByteArray datagram);
 private:
     qint64 timestamp;
-    unsigned char scm;
 
     #pragma pack(push,1)
     typedef struct{
