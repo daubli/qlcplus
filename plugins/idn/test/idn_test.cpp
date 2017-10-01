@@ -41,18 +41,23 @@
 #include "../src/idnpacketizer.h"
 #undef private
 
+#include <QTextStream>
+
 /****************************************************************************
  * IDN tests
  ****************************************************************************/
 
 void Idn_Test::setupIdn()
 {
+    QTextStream cout(stdout);
     IdnPacketizer idnpacketizer;
     QByteArray data;
 
     //Packet Fundamentals
     const QByteArray idnhello = QByteArray("\x40\x00\x00\x00");
-    const QByteArray idnsimpleconfig = QByteArray("\x01\x01\x00\x04\x42\x00\x01\x00\x00\x00\x00\x00");
+    const QByteArray idnSimpleConfig = QByteArray("\x01\x01\x00\x04");
+    const QByteArray idnNoServiceModeConfig = QByteArray("\x00\x01\x00\x04");
+    const QByteArray simpleServiceConfig = QByteArray("\x42\x00\x01\x00\x00\x00\x00\x00");
     const QByteArray empty;
     static const char halfRaw[] = {
         0x3a, 0x08, 0xef, 0xda, 0x7a, 0xcf, 0xf5, 0x87, 0x4f, 0x55, 0x2f, 0x66, 0xf5, 0xb3, 0x86, 0x07, 
@@ -110,27 +115,39 @@ void Idn_Test::setupIdn()
     QByteArray full = QByteArray::fromRawData(fullRaw, sizeof(fullRaw));
 
     // empty data
-    idnpacketizer.setupIdnDmx(data, IDNVAL_SMOD_LPEFX_DISCRETE, 0, empty, 1, 0, true);
+    idnpacketizer.setupIdnDmx(data, 4, 0, empty, 1, 0, true);
     QCOMPARE(data.size(), 24);
     QCOMPARE(data.mid(0, 4).data(), idnhello.data());
     QCOMPARE(data.mid(4, 4).data(), "\x00\x14\xc0\x18");
-    QCOMPARE(data.mid(12).data(), idnsimpleconfig.data());
+    QCOMPARE(data.mid(12, 16).data(), idnSimpleConfig.data());
+    QCOMPARE(data.mid(16).data(), simpleServiceConfig.data());
 
     // packet with 256 DMX channels
-    idnpacketizer.setupIdnDmx(data, IDNVAL_SMOD_LPEFX_DISCRETE, 0, half, 1, 0, true);
+    idnpacketizer.setupIdnDmx(data, 4, 0, half, 1, 0, true);
     QCOMPARE(data.size(), 280);
     QCOMPARE(data.mid(0, 4).data(), idnhello.data());
     QCOMPARE(data.mid(4, 4).data(), "\x01\x14\xc0\x18");
-    QCOMPARE(data.mid(12, 12).data(), idnsimpleconfig.data());
+    QCOMPARE(data.mid(12, 16).data(), idnSimpleConfig.data());
+    QCOMPARE(data.mid(16, 24).data(), simpleServiceConfig.data());
     QCOMPARE(data.mid(24).data(), half.data());
 
     // packet with 512 DMX channels
-    idnpacketizer.setupIdnDmx(data, IDNVAL_SMOD_LPEFX_DISCRETE, 0, full, 1, 0, true);
+    idnpacketizer.setupIdnDmx(data, 4, 0, full, 1, 0, true);
     QCOMPARE(data.size(), 536);
     QCOMPARE(data.mid(0, 4).data(), idnhello.data());
     QCOMPARE(data.mid(4, 4).data(), "\x02\x14\xc0\x18");
-    QCOMPARE(data.mid(12, 12).data(), idnsimpleconfig.data());
+    QCOMPARE(data.mid(12, 16).data(), idnSimpleConfig.data());
+    QCOMPARE(data.mid(16, 24).data(), simpleServiceConfig.data());
     QCOMPARE(data.mid(24).data(), full.data());
+
+    //empty data in optimized mode
+    const QList<QPair<int, int> > emptyRange; 
+    idnpacketizer.setupIdnDmx(data, 5, 0, empty, emptyRange, 0, true);
+    QCOMPARE(data.size(), 20);
+    QCOMPARE(data.mid(0, 4).data(), idnhello.data());
+    QCOMPARE(data.mid(4, 8).data(), "\x00\x10\xc0\x18");
+    QCOMPARE(data.mid(12, 16).data(), idnNoServiceModeConfig.data());
+    
 }
 
 QTEST_MAIN(Idn_Test)
