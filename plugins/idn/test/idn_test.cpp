@@ -41,8 +41,6 @@
 #include "../src/idnpacketizer.h"
 #undef private
 
-#include <QTextStream>
-
 /****************************************************************************
  * IDN tests
  ****************************************************************************/
@@ -51,7 +49,6 @@ void Idn_Test::setupIdn()
 {
     IdnPacketizer idnpacketizer;
     QByteArray data;
-    QTextStream cout(stdout);
 
     //Packet Fundamentals
     const QByteArray idnhello = QByteArray("\x40\x00\x00\x00");
